@@ -1,0 +1,5 @@
+Adiciona estas variáveis no Vercel Dashboard → Settings → Environment Variables:
+
+VITE_SUPABASE_URL        = https://itfptgjsfnznzfobntka.supabase.co
+VITE_SUPABASE_ANON_KEY   = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0ZnB0Z2pzZm56bnpmb2JudGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MDY2MzAsImV4cCI6MjA4OTQ4MjYzMH0.Mif_04ke7U3NC7FsIu7_loiN0IigGnkfZnsJjF4vVxQ
+VITE_TENANT_SLUG         = impakto

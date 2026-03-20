@@ -13,7 +13,7 @@ const STATUS_COLORS: Record<string, string> = {
   no_show:   'bg-stone-50 text-stone-500 border-stone-200',
 }
 
-export default function AdminDashboard({ tenantId }: { tenantId: string }) {
+export default function AdminDashboard({ tenantId, onLogout }: { tenantId: string; onLogout?: () => void }) {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [filter, setFilter]     = useState('all')
   const [search, setSearch]     = useState('')
@@ -61,6 +61,13 @@ export default function AdminDashboard({ tenantId }: { tenantId: string }) {
             </div>
             <h1 className="font-display text-2xl text-stone-900">Painel de agendamentos</h1>
           </div>
+          {onLogout && (
+            <button onClick={onLogout}
+              className="px-4 py-2 rounded-xl border border-red-100 text-sm text-red-400 hover:bg-red-50 transition-colors flex items-center gap-2 mr-2">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              Sair
+            </button>
+          )}
           <button onClick={load}
             className="px-4 py-2 rounded-xl border border-stone-200 text-sm text-stone-500 hover:bg-white transition-colors flex items-center gap-2">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

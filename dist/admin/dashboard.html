@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard · Schedular IMPAKTO</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--navy:#1A2E6B;--orange:#E8501A;}
+    body{background:#f4f4f0;font-family:'DM Sans',sans-serif;min-height:100vh;color:#1a1a1a;}
+
+    #authCheck{
+      position:fixed;inset:0;background:var(--navy);
+      display:flex;align-items:center;justify-content:center;z-index:999;
+    }
+    .spin{width:28px;height:28px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .6s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    header{
+      background:var(--navy);padding:1rem 1.5rem;
+      display:flex;align-items:center;justify-content:space-between;
+      box-shadow:0 2px 16px rgba(0,0,0,.25);
+    }
+    .brand{display:flex;align-items:center;gap:.75rem;}
+    .brand-icon{width:36px;height:36px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+    .brand-icon svg{color:white;}
+    .brand-name{font-family:'DM Serif Display',serif;font-size:1rem;color:white;line-height:1.1;}
+    .brand-sub{font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;}
+    .header-actions{display:flex;gap:.5rem;align-items:center;}
+    .btn-refresh,.btn-logout{
+      padding:.45rem .9rem;border-radius:8px;font-family:'DM Sans',sans-serif;
+      font-size:.78rem;font-weight:600;cursor:pointer;border:none;
+      display:flex;align-items:center;gap:.4rem;transition:all .15s;
+    }
+    .btn-refresh{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);}
+    .btn-refresh:hover{background:rgba(255,255,255,.14);}
+    .btn-logout{background:rgba(232,80,26,.2);color:#f97316;}
+    .btn-logout:hover{background:rgba(232,80,26,.35);}
+
+    main{max-width:1100px;margin:0 auto;padding:1.5rem;}
+
+    .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;}
+    @media(min-width:640px){.metrics{grid-template-columns:repeat(4,1fr);}}
+    .metric{background:white;border-radius:14px;padding:1.25rem;border:1px solid #e8e8e0;}
+    .metric-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#999;margin-bottom:.5rem;}
+    .metric-val{font-family:'DM Serif Display',serif;font-size:2.2rem;line-height:1;}
+    .metric-val.total{color:#1a1a1a;}
+    .metric-val.confirmed{color:#16a34a;}
+    .metric-val.pending{color:#d97706;}
+    .metric-val.completed{color:#2563eb;}
+
+    .table-card{background:white;border-radius:14px;border:1px solid #e8e8e0;overflow:hidden;}
+    .table-header{
+      padding:1rem 1.25rem;border-bottom:1px solid #f0f0e8;
+      display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;justify-content:space-between;
+    }
+    .table-title{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#1a1a1a;}
+
+    .filters{display:flex;gap:.5rem;flex-wrap:wrap;}
+    .filter-btn{
+      padding:.35rem .75rem;border-radius:8px;font-size:.75rem;font-weight:600;
+      border:1.5px solid #e8e8e0;background:white;cursor:pointer;transition:all .15s;color:#666;
+    }
+    .filter-btn.active{background:var(--navy);color:white;border-color:var(--navy);}
+    .filter-btn:hover:not(.active){background:#f4f4f0;}
+
+    .search{
+      padding:.45rem .9rem;border:1.5px solid #e8e8e0;border-radius:8px;
+      font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;
+      transition:border-color .15s;background:#fafafa;min-width:180px;
+    }
+    .search:focus{border-color:var(--orange);}
+
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{
+      padding:.75rem 1rem;text-align:left;font-size:.68rem;font-weight:600;
+      text-transform:uppercase;letter-spacing:.07em;color:#999;
+      border-bottom:1px solid #f0f0e8;background:#fafafa;white-space:nowrap;
+    }
+    td{padding:.85rem 1rem;font-size:.82rem;border-bottom:1px solid #f8f8f4;vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#fafaf8;}
+
+    .status{
+      display:inline-flex;align-items:center;gap:.3rem;
+      padding:.25rem .65rem;border-radius:20px;font-size:.7rem;font-weight:600;
+      border:1px solid transparent;white-space:nowrap;
+    }
+    .status.pending{background:#fffbeb;color:#b45309;border-color:#fde68a;}
+    .status.confirmed{background:#f0fdf4;color:#166534;border-color:#bbf7d0;}
+    .status.cancelled{background:#fef2f2;color:#dc2626;border-color:#fecaca;}
+    .status.completed{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;}
+    .status.no_show{background:#f9fafb;color:#6b7280;border-color:#e5e7eb;}
+    .status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+    select.status-sel{
+      padding:.25rem .5rem;border-radius:6px;font-size:.75rem;
+      border:1px solid #e8e8e0;background:white;cursor:pointer;
+      font-family:'DM Sans',sans-serif;
+    }
+
+    .empty{padding:3rem;text-align:center;color:#bbb;font-size:.85rem;}
+    .loading-row td{text-align:center;padding:2rem;color:#bbb;}
+
+    .name{font-weight:600;color:#1a1a1a;}
+    .email{color:#666;font-size:.78rem;}
+    .company{color:#888;font-size:.78rem;}
+    .date{white-space:nowrap;}
+    .budget{
+      display:inline-block;padding:.2rem .5rem;background:#f4f4f0;
+      border-radius:6px;font-size:.72rem;color:#555;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Auth check overlay -->
+<div id="authCheck"><div class="spin"></div></div>
+
+<header>
+  <div class="brand">
+    <div class="brand-icon">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">Painel de Agendamentos</div>
+      <div class="brand-sub">IMPAKTO · Schedular</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-refresh" onclick="loadBookings()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0115 0M20 15a9 9 0 01-15 0"/>
+      </svg>
+      Actualizar
+    </button>
+    <button class="btn-logout" onclick="logout()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Sair
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total</div><div class="metric-val total" id="mTotal">—</div></div>
+    <div class="metric"><div class="metric-label">Confirmados</div><div class="metric-val confirmed" id="mConfirmed">—</div></div>
+    <div class="metric"><div class="metric-label">Pendentes</div><div class="metric-val pending" id="mPending">—</div></div>
+    <div class="metric"><div class="metric-label">Concluídos</div><div class="metric-val completed" id="mCompleted">—</div></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Agendamentos</span>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+        <div class="filters" id="filters">
+          <button class="filter-btn active" data-filter="all">Todos</button>
+          <button class="filter-btn" data-filter="pending">Pendentes</button>
+          <button class="filter-btn" data-filter="confirmed">Confirmados</button>
+          <button class="filter-btn" data-filter="completed">Concluídos</button>
+          <button class="filter-btn" data-filter="cancelled">Cancelados</button>
+        </div>
+        <input class="search" type="text" placeholder="Pesquisar..." id="search" oninput="renderTable()"/>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome / Empresa</th>
+            <th>Data</th>
+            <th>Orçamento</th>
+            <th>Estado</th>
+            <th>Acção</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr class="loading-row"><td colspan="5">A carregar...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var AUTH='https://itfptgjsfnznzfobntka.supabase.co/functions/v1/admin-auth';
+  var REST='https://itfptgjsfnznzfobntka.supabase.co/rest/v1';
+  var APIKEY='sb_publishable_LvCUr8F20kuTxEMsQKhrOQ_xm9LRX1i';
+  var KEY='schedular_admin_token';
+  var LOGIN='/admin/index.html';
+
+  var token=sessionStorage.getItem(KEY);
+  var bookings=[];
+  var currentFilter='all';
+
+  // Auth check
+  if(!token||token.length!==96){
+    window.location.replace(LOGIN); return;
+  }
+  fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',token:token})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.valid){sessionStorage.removeItem(KEY);window.location.replace(LOGIN);return;}
+    document.getElementById('authCheck').style.display='none';
+    loadTenant();
+  })
+  .catch(function(){sessionStorage.removeItem(KEY);window.location.replace(LOGIN);});
+
+  window.logout=function(){
+    fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout',token:token})}).catch(function(){});
+    sessionStorage.removeItem(KEY);
+    window.location.replace(LOGIN);
+  };
+
+  var tenantId=null;
+
+  function loadTenant(){
+    fetch(REST+'/tenants?select=id&slug=eq.impakto',{
+      headers:{'apikey':APIKEY,'Authorization':'Bearer '+APIKEY}
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d&&d[0]){tenantId=d[0].id;loadBookings();}
+    });
+  }
+
+  window.loadBookings=function(){
+    if(!tenantId)return;
+    document.getElementById('tbody').innerHTML='<tr class="loading-row"><td colspan="5">A carregar...</td></tr>';
+    fetch(REST+'/bookings?select=*&tenant_id=eq.'+tenantId+'&order=booking_date.desc',{
+      headers:{'apikey':APIKEY,'Authorization':'Bearer '+APIKEY}
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      bookings=Array.isArray(d)?d:[];
+      updateMetrics();
+      renderTable();
+    });
+  };
+
+  function updateMetrics(){
+    document.getElementById('mTotal').textContent=bookings.length;
+    document.getElementById('mConfirmed').textContent=bookings.filter(function(b){return b.status==='confirmed';}).length;
+    document.getElementById('mPending').textContent=bookings.filter(function(b){return b.status==='pending';}).length;
+    document.getElementById('mCompleted').textContent=bookings.filter(function(b){return b.status==='completed';}).length;
+  }
+
+  window.renderTable=function(){
+    var search=document.getElementById('search').value.toLowerCase().trim();
+    var filtered=bookings.filter(function(b){
+      if(currentFilter!=='all'&&b.status!==currentFilter)return false;
+      if(search){
+        var hay=(b.full_name+' '+b.email+' '+b.company).toLowerCase();
+        if(!hay.includes(search))return false;
+      }
+      return true;
+    });
+    var tbody=document.getElementById('tbody');
+    if(!filtered.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Nenhum agendamento encontrado.</td></tr>';return;}
+    tbody.innerHTML=filtered.map(function(b){
+      var statusLabels={pending:'Pendente',confirmed:'Confirmado',cancelled:'Cancelado',completed:'Concluído',no_show:'Faltou'};
+      var s=b.status||'pending';
+      return '<tr>'+
+        '<td><div class="name">'+esc(b.full_name||'')+'</div><div class="company">'+esc(b.company||'')+'</div><div class="email">'+esc(b.email||'')+'</div></td>'+
+        '<td class="date">'+esc(b.booking_date||'')+'<br><span style="color:#999;font-size:.75rem;">'+esc(b.booking_time||'')+'</span></td>'+
+        '<td><span class="budget">'+esc(b.budget_range||'—')+'</span></td>'+
+        '<td><span class="status '+s+'"><span class="status-dot"></span>'+esc(statusLabels[s]||s)+'</span></td>'+
+        '<td><select class="status-sel" onchange="updateStatus(\''+b.id+'\',this.value)">'+
+          ['pending','confirmed','completed','cancelled','no_show'].map(function(st){
+            return '<option value="'+st+'"'+(b.status===st?' selected':'')+'>'+statusLabels[st]+'</option>';
+          }).join('')+
+        '</select></td>'+
+      '</tr>';
+    }).join('');
+  };
+
+  window.updateStatus=function(id,status){
+    fetch(REST+'/bookings?id=eq.'+id,{
+      method:'PATCH',
+      headers:{'apikey':APIKEY,'Authorization':'Bearer '+APIKEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({status:status})
+    }).then(function(){
+      var b=bookings.find(function(x){return x.id===id;});
+      if(b){b.status=status;updateMetrics();renderTable();}
+    });
+  };
+
+  document.getElementById('filters').addEventListener('click',function(e){
+    var btn=e.target.closest('.filter-btn');
+    if(!btn)return;
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    currentFilter=btn.dataset.filter;
+    renderTable();
+  });
+
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+})();
+</script>
+</body>
+</html>

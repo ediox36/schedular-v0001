@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin · Schedular IMPAKTO</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1A2E6B;
+      --orange: #E8501A;
+      --orange-dark: #c4421500;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background decorative circles */
+    body::before {
+      content: '';
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,80,26,0.12) 0%, transparent 70%);
+      top: -200px; right: -200px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+      bottom: -100px; left: -100px;
+      pointer-events: none;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.97);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: var(--orange);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(232,80,26,0.35);
+    }
+
+    .logo-icon svg { color: white; }
+
+    .logo-text h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+      line-height: 1.2;
+    }
+    .logo-text p {
+      font-size: 0.72rem;
+      color: #999;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin-bottom: 1.75rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1.5px solid #e8e8e8;
+      border-radius: 10px;
+      background: #fafafa;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: #1a1a1a;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,80,26,0.1);
+      background: white;
+    }
+
+    input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-box {
+      display: none;
+      align-items: flex-start;
+      gap: 0.5rem;
+      background: #fff5f5;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-box.show { display: flex; }
+
+    .error-box svg { flex-shrink: 0; color: #ef4444; margin-top: 1px; }
+
+    .error-box p {
+      font-size: 0.8rem;
+      color: #dc2626;
+      line-height: 1.4;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--orange);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(232,80,26,0.3);
+      margin-top: 1.5rem;
+    }
+
+    .btn:hover:not(:disabled) { background: #d4461a; }
+    .btn:active:not(:disabled) { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    .spinner.show { display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .countdown {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #aaa;
+      margin-top: 0.75rem;
+      min-height: 1.2rem;
+    }
+
+    .countdown span {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: var(--orange);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.2);
+      margin-top: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <h1>Painel Admin</h1>
+      <p>Schedular · IMPAKTO</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="errorBox" class="error-box">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <p id="errorMsg"></p>
+  </div>
+
+  <form id="loginForm" novalidate>
+    <div class="field">
+      <label for="username">Utilizador</label>
+      <input id="username" type="text" placeholder="nome de utilizador"
+        autocomplete="username" autocapitalize="none" autocorrect="off"
+        spellcheck="false" maxlength="50" required/>
+    </div>
+    <div class="field">
+      <label for="password">Palavra-passe</label>
+      <input id="password" type="password" placeholder="••••••••"
+        autocomplete="current-password" maxlength="200" required/>
+    </div>
+
+    <button type="submit" id="loginBtn" class="btn">
+      <div class="spinner" id="spinner"></div>
+      <span id="btnText">Entrar</span>
+    </button>
+  </form>
+
+  <div class="countdown" id="countdown"></div>
+</div>
+
+<p class="footer">ACESSO RESTRITO · NÃO AUTORIZADO</p>
+
+<script>
+(function() {
+  'use strict';
+
+  const ENDPOINT = 'https://itfptgjsfnznzfobntka.supabase.co/functions/v1/admin-auth';
+  const TENANT_SLUG = 'impakto';
+  const SESSION_KEY = 'schedular_admin_token';
+
+  // Se já tem sessão válida → vai directo para o dashboard
+  const stored = sessionStorage.getItem(SESSION_KEY);
+  if (stored && stored.length === 96) {
+    verifyAndRedirect(stored);
+  }
+
+  let attempts = 0;
+  let blockedUntil = null;
+  let countdownTimer = null;
+
+  const form = document.getElementById('loginForm');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const btn = document.getElementById('loginBtn');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btnText');
+  const errorBox = document.getElementById('errorBox');
+  const errorMsg = document.getElementById('errorMsg');
+  const countdownEl = document.getElementById('countdown');
+
+  usernameInput.focus();
+
+  function sanitize(val) {
+    return String(val).replace(/[<>"'`\\]/g, '').substring(0, 200).trim();
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorBox.classList.add('show');
+  }
+
+  function hideError() {
+    errorBox.classList.remove('show');
+  }
+
+  function setLoading(on) {
+    btn.disabled = on;
+    usernameInput.disabled = on;
+    passwordInput.disabled = on;
+    spinner.classList.toggle('show', on);
+    btnText.textContent = on ? 'A verificar...' : 'Entrar';
+  }
+
+  function startCountdown(seconds) {
+    clearInterval(countdownTimer);
+    countdownEl.innerHTML = 'Desbloqueio em <span>' + seconds + 's</span>';
+    countdownTimer = setInterval(function() {
+      seconds--;
+      if (seconds <= 0) {
+        clearInterval(countdownTimer);
+        countdownEl.innerHTML = '';
+        blockedUntil = null;
+        btn.disabled = false;
+        usernameInput.disabled = false;
+        passwordInput.disabled = false;
+        hideError();
+      } else {
+        countdownEl.innerHTML = 'Desbloqueio em <span>' + seconds + 's</span>';
+      }
+    }, 1000);
+  }
+
+  async function verifyAndRedirect(token) {
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', token: token })
+      });
+      const data = await res.json();
+      if (data.valid) {
+        window.location.replace('/admin/dashboard.html');
+      } else {
+        sessionStorage.removeItem(SESSION_KEY);
+      }
+    } catch(e) {
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideError();
+
+    if (blockedUntil && Date.now() < blockedUntil) return;
+
+    const username = sanitize(usernameInput.value);
+    const password = sanitize(passwordInput.value);
+
+    if (!username || username.length < 3) {
+      showError('Nome de utilizador inválido.');
+      return;
+    }
+    if (!password || password.length < 6) {
+      showError('Palavra-passe inválida.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'login',
+          username: username,
+          password: password,
+          tenant_slug: TENANT_SLUG
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+
+      const data = await res.json();
+
+      if (res.status === 429 || res.status === 423) {
+        const secs = res.status === 423 ? 1800 : 900;
+        blockedUntil = Date.now() + secs * 1000;
+        showError(data.error || 'Conta bloqueada temporariamente.');
+        startCountdown(secs);
+        setLoading(false);
+        return;
+      }
+
+      if (!res.ok || !data.token) {
+        attempts++;
+        passwordInput.value = '';
+        if (attempts >= 5) {
+          blockedUntil = Date.now() + 5 * 60 * 1000;
+          showError('Demasiadas tentativas. Aguarde 5 minutos.');
+          startCountdown(300);
+        } else {
+          const left = 5 - attempts;
+          showError('Credenciais incorrectas. (' + left + ' tentativa' + (left !== 1 ? 's' : '') + ' restante' + (left !== 1 ? 's' : '') + ')');
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Sucesso
+      sessionStorage.setItem(SESSION_KEY, data.token);
+      window.location.replace('/admin/dashboard.html');
+
+    } catch(err) {
+      if (err.name === 'AbortError') {
+        showError('Tempo limite excedido. Verifique a sua ligação.');
+      } else {
+        showError('Erro de ligação. Tente novamente.');
+      }
+      passwordInput.value = '';
+      setLoading(false);
+    }
+  });
+})();
+</script>
+</body>
+</html>

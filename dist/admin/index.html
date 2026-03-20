@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin · Schedular IMPAKTO</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy:#1A2E6B; --orange:#E8501A; }
+    body {
+      min-height:100vh; background:var(--navy);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'DM Sans',sans-serif; padding:1rem; overflow:hidden;
+    }
+    body::before {
+      content:''; position:fixed; width:600px; height:600px; border-radius:50%;
+      background:radial-gradient(circle,rgba(232,80,26,.12) 0%,transparent 70%);
+      top:-200px; right:-200px; pointer-events:none;
+    }
+    body::after {
+      content:''; position:fixed; width:400px; height:400px; border-radius:50%;
+      background:radial-gradient(circle,rgba(255,255,255,.04) 0%,transparent 70%);
+      bottom:-100px; left:-100px; pointer-events:none;
+    }
+    .card {
+      background:rgba(255,255,255,.97); border-radius:20px; padding:2.5rem;
+      width:100%; max-width:380px; box-shadow:0 32px 80px rgba(0,0,0,.4);
+      position:relative; z-index:1;
+      animation:slideUp .4s cubic-bezier(.16,1,.3,1) both;
+    }
+    @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    .logo { display:flex; align-items:center; gap:.75rem; margin-bottom:2rem; }
+    .logo-icon {
+      width:44px; height:44px; background:var(--orange); border-radius:12px;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      box-shadow:0 4px 12px rgba(232,80,26,.35);
+    }
+    .logo-icon svg { color:white; }
+    .logo-text h1 { font-family:'DM Serif Display',serif; font-size:1.1rem; color:#1a1a1a; line-height:1.2; }
+    .logo-text p { font-size:.72rem; color:#999; letter-spacing:.05em; text-transform:uppercase; }
+    .divider { height:1px; background:#f0f0f0; margin-bottom:1.75rem; }
+    label { display:block; font-size:.72rem; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.5rem; }
+    .field { margin-bottom:1rem; }
+    input {
+      width:100%; padding:.8rem 1rem; border:1.5px solid #e8e8e8; border-radius:10px;
+      background:#fafafa; font-family:'DM Sans',sans-serif; font-size:.9rem; color:#1a1a1a;
+      transition:border-color .15s,box-shadow .15s; outline:none;
+    }
+    input:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(232,80,26,.1); background:white; }
+    input:disabled { opacity:.5; cursor:not-allowed; }
+    .error-box {
+      display:none; align-items:flex-start; gap:.5rem;
+      background:#fff5f5; border:1px solid #fecaca; border-radius:10px;
+      padding:.75rem 1rem; margin-bottom:1rem;
+    }
+    .error-box.show { display:flex; }
+    .error-box svg { flex-shrink:0; color:#ef4444; margin-top:1px; }
+    .error-box p { font-size:.8rem; color:#dc2626; line-height:1.4; }
+    .btn {
+      width:100%; padding:.85rem; background:var(--orange); color:white; border:none;
+      border-radius:10px; font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:600;
+      cursor:pointer; transition:background .15s,transform .1s,opacity .15s;
+      display:flex; align-items:center; justify-content:center; gap:.5rem;
+      box-shadow:0 4px 12px rgba(232,80,26,.3); margin-top:1.5rem;
+    }
+    .btn:hover:not(:disabled) { background:#d4461a; }
+    .btn:active:not(:disabled) { transform:scale(.98); }
+    .btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .spinner {
+      width:16px; height:16px; border:2px solid rgba(255,255,255,.3);
+      border-top-color:white; border-radius:50%;
+      animation:spin .6s linear infinite; display:none;
+    }
+    .spinner.show { display:block; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .countdown { text-align:center; font-size:.78rem; color:#aaa; margin-top:.75rem; min-height:1.2rem; }
+    .countdown span { font-variant-numeric:tabular-nums; font-weight:600; color:var(--orange); }
+    .footer { text-align:center; font-size:.7rem; color:rgba(255,255,255,.2); margin-top:1.5rem; letter-spacing:.05em; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <h1>Painel Admin</h1>
+      <p>Schedular · IMPAKTO</p>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div id="errorBox" class="error-box">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <p id="errorMsg"></p>
+  </div>
+  <form id="loginForm" novalidate>
+    <div class="field">
+      <label for="username">Utilizador</label>
+      <input id="username" type="text" placeholder="nome de utilizador" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="50" required/>
+    </div>
+    <div class="field">
+      <label for="password">Palavra-passe</label>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" maxlength="200" required/>
+    </div>
+    <button type="submit" id="loginBtn" class="btn">
+      <div class="spinner" id="spinner"></div>
+      <span id="btnText">Entrar</span>
+    </button>
+  </form>
+  <div class="countdown" id="countdown"></div>
+</div>
+<p class="footer">ACESSO RESTRITO · NÃO AUTORIZADO</p>
+<script>
+(function(){
+  'use strict';
+  var ENDPOINT='https://itfptgjsfnznzfobntka.supabase.co/functions/v1/admin-auth';
+  var TENANT='impakto';
+  var KEY='schedular_admin_token';
+  var DASH='/admin/dashboard.html';
+
+  var stored=sessionStorage.getItem(KEY);
+  if(stored&&stored.length===96){
+    fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',token:stored})})
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.valid)window.location.replace(DASH);else sessionStorage.removeItem(KEY);})
+    .catch(function(){sessionStorage.removeItem(KEY);});
+  }
+
+  var attempts=0,blockedUntil=null,timer=null;
+  var form=document.getElementById('loginForm');
+  var uInput=document.getElementById('username');
+  var pInput=document.getElementById('password');
+  var btn=document.getElementById('loginBtn');
+  var sp=document.getElementById('spinner');
+  var bTxt=document.getElementById('btnText');
+  var errBox=document.getElementById('errorBox');
+  var errMsg=document.getElementById('errorMsg');
+  var cdEl=document.getElementById('countdown');
+
+  uInput.focus();
+
+  function san(v){return String(v).replace(/[<>"'`\\]/g,'').substring(0,200).trim();}
+  function showErr(m){errMsg.textContent=m;errBox.classList.add('show');}
+  function hideErr(){errBox.classList.remove('show');}
+  function setLoad(on){
+    btn.disabled=on; uInput.disabled=on; pInput.disabled=on;
+    sp.classList.toggle('show',on); bTxt.textContent=on?'A verificar...':'Entrar';
+  }
+  function startCD(s){
+    clearInterval(timer);
+    cdEl.innerHTML='Desbloqueio em <span>'+s+'s</span>';
+    timer=setInterval(function(){
+      s--;
+      if(s<=0){clearInterval(timer);cdEl.innerHTML='';blockedUntil=null;btn.disabled=false;uInput.disabled=false;pInput.disabled=false;hideErr();}
+      else cdEl.innerHTML='Desbloqueio em <span>'+s+'s</span>';
+    },1000);
+  }
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault(); hideErr();
+    if(blockedUntil&&Date.now()<blockedUntil)return;
+    var u=san(uInput.value), p=san(pInput.value);
+    if(!u||u.length<3){showErr('Nome de utilizador inválido.');return;}
+    if(!p||p.length<6){showErr('Palavra-passe inválida.');return;}
+    setLoad(true);
+    var ctrl=new AbortController();
+    var to=setTimeout(function(){ctrl.abort();},10000);
+    fetch(ENDPOINT,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'login',username:u,password:p,tenant_slug:TENANT}),
+      signal:ctrl.signal
+    })
+    .then(function(r){clearTimeout(to);return r.json().then(function(d){return{s:r.status,d:d};});})
+    .then(function(rd){
+      if(rd.s===429||rd.s===423){
+        var secs=rd.s===423?1800:900;
+        blockedUntil=Date.now()+secs*1000;
+        showErr(rd.d.error||'Conta bloqueada.');startCD(secs);setLoad(false);return;
+      }
+      if(!rd.d.token){
+        attempts++;pInput.value='';
+        if(attempts>=5){blockedUntil=Date.now()+300000;showErr('Demasiadas tentativas. Aguarde 5 minutos.');startCD(300);}
+        else{var l=5-attempts;showErr('Credenciais incorrectas. ('+l+' tentativa'+(l!==1?'s':'')+' restante'+(l!==1?'s':'')+')');} 
+        setLoad(false);return;
+      }
+      sessionStorage.setItem(KEY,rd.d.token);
+      window.location.replace(DASH);
+    })
+    .catch(function(err){
+      clearTimeout(to);
+      showErr(err.name==='AbortError'?'Tempo limite excedido.':'Erro de ligação.');
+      pInput.value='';setLoad(false);
+    });
+  });
+})();
+</script>
+</body>
+</html>
